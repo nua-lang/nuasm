@@ -1,0 +1,21 @@
+# IDE projects file
+.idea/
+
+# Object files and executable files
+*.a
+*.o
+*.so
+*.dylib
+*.lib
+
+*.exe
+
+# output files
+output/
+build/
+tmp/
+
+# generated files
+*.tab.c
+*.tab.h
+*.yy.c
