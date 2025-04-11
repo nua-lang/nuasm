@@ -1,0 +1,16 @@
+# The Diu Programming Language.
+BasedOnStyle: Google
+DerivePointerAlignment: False
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 1
+AlignConsecutiveAssignments:
+  Enabled: True
+  AcrossEmptyLines: True
+  AcrossComments: True
+AlignConsecutiveShortCaseStatements:
+  Enabled: True
+  AcrossEmptyLines: True
+  AcrossComments: True
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortBlocksOnASingleLine: Empty
