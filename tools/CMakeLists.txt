@@ -5,9 +5,9 @@
 #
 
 # TARGET: hello-c
-add_executable(hello-c hello-c.c)
-target_link_libraries(hello-c -static)
-add_custom_command(TARGET hello-c
+ADD_EXECUTABLE(hello-c hello-c.c)
+TARGET_LINK_LIBRARIES(hello-c -static)
+ADD_CUSTOM_COMMAND(TARGET hello-c
         POST_BUILD
         COMMAND strip $<TARGET_FILE:hello-c>
         COMMENT "stripping hello-c"
@@ -15,14 +15,22 @@ add_custom_command(TARGET hello-c
 )
 
 # TARGET: hello-asm
-add_custom_target(hello-asm ALL
-        DEPENDS hello-asm.asm
+IF(IS_x64)
+    SET(NASM_FORMAT elf64)
+    SET(HELLO_ASM_SRC hello-asm-64.asm)
+ELSE()
+    SET(NASM_FORMAT elf32)
+    SET(HELLO_ASM_SRC hello-asm-32.asm)
+ENDIF()
+
+ADD_CUSTOM_TARGET(hello-asm ALL
+        DEPENDS ${HELLO_ASM_SRC}
 )
 
-add_custom_command(TARGET hello-asm
+ADD_CUSTOM_COMMAND(TARGET hello-asm
         PRE_BUILD
         COMMAND mkdir -p ${PROJECT_BINARY_DIR}/cache
-        COMMAND nasm -f elf64 -o ${PROJECT_BINARY_DIR}/cache/hello-asm.o ${CMAKE_CURRENT_SOURCE_DIR}/hello-asm.asm
+        COMMAND nasm -f ${NASM_FORMAT} -o ${PROJECT_BINARY_DIR}/cache/hello-asm.o ${CMAKE_CURRENT_SOURCE_DIR}/${HELLO_ASM_SRC}
         COMMAND ld ${PROJECT_BINARY_DIR}/cache/hello-asm.o -o ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/hello-asm
         COMMAND strip ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/hello-asm
         COMMENT "assembly hello-asm"
@@ -30,32 +38,33 @@ add_custom_command(TARGET hello-asm
 )
 
 # TARGET: hello-elf
-set(HELLO_ELF_SRC ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/hello-elf)
-add_executable(write-elf write-elf.c)
-add_custom_target(hello-elf ALL
+SET(ELF_TARGET ${NASM_FORMAT})
+SET(HELLO_ELF_SRC ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/hello-elf)
+ADD_EXECUTABLE(write-elf write-elf.c)
+ADD_CUSTOM_TARGET(hello-elf ALL
         DEPENDS ${HELLO_ELF_SRC}
 )
-add_custom_command(OUTPUT ${HELLO_ELF_SRC}
+ADD_CUSTOM_COMMAND(OUTPUT ${HELLO_ELF_SRC}
         PRE_BUILD
         DEPENDS write-elf
         COMMAND mkdir -p ${PROJECT_BINARY_DIR}/cache
-        COMMAND $<TARGET_FILE:write-elf> ${HELLO_ELF_SRC}
+        COMMAND $<TARGET_FILE:write-elf> ${ELF_TARGET} ${HELLO_ELF_SRC}
         COMMAND chmod +x ${HELLO_ELF_SRC}
         COMMENT "generating ${HELLO_ELF_SRC}"
         VERBATIM
 )
 
 # TARGET: hello-elf-min
-set(HELLO_ELF_MIN_SRC ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/hello-elf-min)
-add_executable(write-elf-min write-elf-min.c)
-add_custom_target(hello-elf-min ALL
+SET(HELLO_ELF_MIN_SRC ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/hello-elf-min)
+ADD_EXECUTABLE(write-elf-min write-elf-min.c)
+ADD_CUSTOM_TARGET(hello-elf-min ALL
         DEPENDS ${HELLO_ELF_MIN_SRC}
 )
-add_custom_command(OUTPUT ${HELLO_ELF_MIN_SRC}
+ADD_CUSTOM_COMMAND(OUTPUT ${HELLO_ELF_MIN_SRC}
         PRE_BUILD
         DEPENDS write-elf-min
         COMMAND mkdir -p ${PROJECT_BINARY_DIR}/cache
-        COMMAND $<TARGET_FILE:write-elf-min> ${HELLO_ELF_MIN_SRC}
+        COMMAND $<TARGET_FILE:write-elf-min> ${ELF_TARGET} ${HELLO_ELF_MIN_SRC}
         COMMAND chmod +x ${HELLO_ELF_MIN_SRC}
         COMMENT "generating ${HELLO_ELF_MIN_SRC}"
         VERBATIM
