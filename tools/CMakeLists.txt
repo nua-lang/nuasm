@@ -15,13 +15,13 @@ ADD_CUSTOM_COMMAND(TARGET hello-c
 )
 
 # TARGET: hello-asm
-IF(IS_x64)
+IF (IS_x64)
     SET(NASM_FORMAT elf64)
     SET(HELLO_ASM_SRC hello-asm-64.asm)
-ELSE()
+ELSE ()
     SET(NASM_FORMAT elf32)
     SET(HELLO_ASM_SRC hello-asm-32.asm)
-ENDIF()
+ENDIF ()
 
 ADD_CUSTOM_TARGET(hello-asm ALL
         DEPENDS ${HELLO_ASM_SRC}
@@ -70,4 +70,18 @@ ADD_CUSTOM_COMMAND(OUTPUT ${HELLO_ELF_MIN_SRC}
         VERBATIM
 )
 
-
+# TARGET: write-elf-rel
+SET(HELLO_ELF_REL_SRC ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/hello-elf-rel)
+ADD_EXECUTABLE(write-elf-rel write-elf-rel.c)
+ADD_CUSTOM_TARGET(hello-elf-rel ALL
+        DEPENDS ${HELLO_ELF_REL_SRC}
+)
+ADD_CUSTOM_COMMAND(OUTPUT ${HELLO_ELF_REL_SRC}
+        PRE_BUILD
+        DEPENDS write-elf-rel
+        COMMAND mkdir -p ${PROJECT_BINARY_DIR}/cache
+        COMMAND $<TARGET_FILE:write-elf-rel> ${ELF_TARGET} ${HELLO_ELF_REL_SRC}
+        COMMAND chmod +x ${HELLO_ELF_REL_SRC}
+        COMMENT "generating ${HELLO_ELF_REL_SRC}"
+        VERBATIM
+)
