@@ -4,6 +4,8 @@
 # https://github.com/nua-lang/nuasm
 #
 
+ADD_SUBDIRECTORY(elf)
+
 # TARGET: hello-c
 ADD_EXECUTABLE(hello-c hello-c.c)
 TARGET_LINK_LIBRARIES(hello-c -static)
